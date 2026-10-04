@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  password     String
+  role         String   @default("user")
+  quotaMb      Int      @default(100)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  files         File[]
+  folders       Folder[]
+  shares        Share[]
+  logs          Log[]
+  comments      FileComment[]
+  favorites     Favorite[]
+  tags          Tag[]
+  storageRequests StorageRequest[]
+}
+
+model File {
+  id            String   @id @default(uuid())
+  filename      String
+  originalName  String
+  path          String
+  size          Int
+  mimeType      String
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folderId      String?
+  folder        Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  checksum      String?
+  isDeleted     Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  versions      FileVersion[]
+  comments      FileComment[]
+  tags          FileTag[]
+  favorites     Favorite[]
+  recentFiles   RecentFile[]
+  shares        Share[]
+  aiCategoryId  String?
+  aiCategory    AICategory? @relation("AIFileCategory", fields: [aiCategoryId], references: [id], onDelete: SetNull)
+  aiSuggestions AISuggestion[] @relation("AIFileSuggestions")
+  
+  @@index([userId])
+  @@index([isDeleted])
+  @@index([folderId])
+  @@index([checksum])
+  @@index([aiCategoryId])
+}
+
+model Folder {
+  id          String   @id @default(uuid())
+  name        String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Folder[] @relation("FolderHierarchy")
+  files       File[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([parentId])
+}
+
+model FileVersion {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  filename    String
+  path        String
+  size        Int
+  mimeType    String
+  checksum    String?
+  version     Int
+  createdAt   DateTime @default(now())
+  
+  @@index([fileId])
+  @@index([version])
+}
+
+model FileComment {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fileId])
+  @@index([userId])
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String
+  color       String   @default("#4f46e5")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  files       FileTag[]
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model FileTag {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  tagId       String
+  tag         Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@unique([fileId, tagId])
+  @@index([fileId])
+  @@index([tagId])
+}
+
+model Favorite {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@unique([fileId, userId])
+  @@index([fileId])
+  @@index([userId])
+}
+
+model RecentFile {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+  
+  @@unique([fileId, userId])
+  @@index([fileId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("recent_files")
+}
+
+model Share {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  fileId    String
+  file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  filePath  String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime?
+  downloads Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([fileId])
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   String?  @db.Text
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Visit {
+  id        String   @id @default(uuid())
+  ip        String
+  path      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  @@index([createdAt])
+}
+
+model AICategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  color       String   @default("#4f46e5")
+  priority    Int      @default(0)
+  files       File[]   @relation("AIFileCategory")
+  createdAt   DateTime @default(now())
+  
+  @@index([priority])
+}
+
+model AISuggestion {
+  id          String   @id @default(uuid())
+  fileId      String
+  file        File     @relation("AIFileSuggestions", fields: [fileId], references: [id], onDelete: Cascade)
+  type        String   // 'folder', 'tag', 'rename', 'move'
+  suggestion  String   @db.Text
+  confidence  Float    @default(0.0)
+  applied     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([fileId])
+  @@index([type])
+  @@index([applied])
+}
+
+model StorageRequest {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestedMb Int
+  reason      String?
+  status      String   @default("pending") // 'pending', 'approved', 'rejected'
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
