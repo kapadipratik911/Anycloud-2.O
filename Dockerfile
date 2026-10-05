@@ -13,7 +13,10 @@ RUN npm ci
 # Copy source code
 COPY backend/ ./
 
-# Build TypeScript (Prisma generate will run at runtime)
+# Generate Prisma client so TypeScript has model types
+RUN npx prisma generate
+
+# Build TypeScript
 RUN npm run build
 
 # Create uploads directory
