@@ -374,8 +374,8 @@ export const categorizeAllFiles = async (req: AuthRequest, res: Response) => {
 
     for (const file of files) {
       const analysis = analyzeFile(file);
-      
-      let category = categories.find(c => 
+
+      let category = categories.find((c: any) =>
         c.name === analysis.categoryName.charAt(0).toUpperCase() + analysis.categoryName.slice(1)
       );
 
@@ -672,7 +672,7 @@ export const getFolderSuggestions = async (req: AuthRequest, res: Response) => {
     );
 
     // Create suggestions for moving files
-    const suggestions = matchingFiles.map(file => ({
+    const suggestions = matchingFiles.map((file: any) => ({
       type: 'move_to_folder',
       suggestion: `Move ${file.originalName} to ${folder.name}`,
       details: {
@@ -771,7 +771,7 @@ export const getAllFolderSuggestions = async (req: AuthRequest, res: Response) =
             purpose: folderPurpose.purpose,
             confidence: folderPurpose.confidence,
             matchingFilesCount: matchingFiles.length,
-            matchingFiles: matchingFiles.map(f => ({
+            matchingFiles: matchingFiles.map((f: any) => ({
               id: f.id,
               name: f.originalName,
               size: f.size,

@@ -193,7 +193,7 @@ export const getFileTags = async (req: AuthRequest, res: Response) => {
       },
     });
 
-    res.json({ tags: fileTags.map(ft => ft.tag) });
+    res.json({ tags: fileTags.map((ft: any) => ft.tag) });
   } catch (error) {
     console.error('Get file tags error:', error);
     res.status(500).json({ error: 'Failed to get file tags' });

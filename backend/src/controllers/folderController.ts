@@ -323,8 +323,8 @@ export const getFolderTree = async (req: AuthRequest, res: Response) => {
     // Build tree structure
     const buildTree = (parentId: string | null = null): any[] => {
       return folders
-        .filter((folder) => folder.parentId === parentId)
-        .map((folder) => ({
+        .filter((folder: any) => folder.parentId === parentId)
+        .map((folder: any) => ({
           ...folder,
           children: buildTree(folder.id),
         }));
