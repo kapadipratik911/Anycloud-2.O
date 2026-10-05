@@ -6,16 +6,22 @@ RUN apk add --no-cache openssl libc6-compat
 
 WORKDIR /app
 
+# Build dependencies
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
 
+# Copy source code
 COPY backend/ ./
-RUN npx prisma generate
+
+# Build TypeScript (Prisma generate will run at runtime)
 RUN npm run build
 
+# Create uploads directory
 RUN mkdir -p uploads
 
+# Set production environment
 ENV NODE_ENV=production
 EXPOSE 5000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+# Run Prisma generate, migrations and start server at runtime
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/server.js"]
