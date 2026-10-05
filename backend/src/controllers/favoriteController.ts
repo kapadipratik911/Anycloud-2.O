@@ -97,7 +97,6 @@ export const getRecentFiles = async (req: AuthRequest, res: Response) => {
       where: { userId },
       include: {
         file: {
-          where: { isDeleted: false },
           include: {
             tags: {
               include: {
@@ -115,7 +114,7 @@ export const getRecentFiles = async (req: AuthRequest, res: Response) => {
     });
 
     const filesWithMetadata = recentFiles
-      .filter(rf => rf.file !== null)
+      .filter(rf => rf.file !== null && !rf.file.isDeleted)
       .map(rf => ({
         ...rf.file,
         isFavorite: rf.file.favorites.length > 0,
