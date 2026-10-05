@@ -317,11 +317,18 @@ View the full schema in `backend/prisma/schema.prisma`.
 2. Set environment variables
 3. Deploy automatically on push
 
-### Railway/Render (Full Stack)
-1. Connect your GitHub repository
-2. Railway/Render will detect the Docker setup
-3. Configure environment variables (including Supabase DATABASE_URL)
-4. Deploy
+### Railway (Full Stack)
+1. Connect your GitHub repository to Railway (it will use `railway.json` and `Dockerfile`).
+2. Configure environment variables in Railway project settings:
+   - `PORT`: `5000`
+   - `NODE_ENV`: `production`
+   - `DATABASE_URL`: `postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres`
+     *(Note: Always use the Supabase IPv4 Connection Pooler host on port 5432 to avoid Prisma Error P1001 on Railway)*
+   - `JWT_SECRET`: A secure random string
+   - `CORS_ORIGIN`: Your frontend URL
+   - `UPLOAD_DIR`: `/app/uploads`
+3. Deploy! Railway will automatically build the image, run `prisma generate`, sync the database schema, and launch the server.
+
 
 ### Self-Hosted (VPS)
 1. Clone repository to server

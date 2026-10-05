@@ -25,17 +25,30 @@ This guide will help you migrate from SQLite to Supabase (PostgreSQL) for a prod
 5. Click "Create new project"
 6. Wait for the project to be provisioned (2-3 minutes)
 
-## Step 2: Get Database Connection String
+## Step 2: Get Database Connection String (Connection Pooler for Railway / Render)
+
+> [!IMPORTANT]
+> **Why Error P1001 Happens on Railway / Render:**
+> Supabase direct database connection URLs (`db.[PROJECT-REF].supabase.co:5432`) only have **IPv6** addresses. Most cloud hosts (including Railway and Render free tier) **do not support IPv6 outbound connections**. If you use the direct URL on Railway, Prisma will fail with:
+> `Error: P1001: Can't reach database server at db.[PROJECT-REF].supabase.co:5432`
+>
+> **The Solution:** Always use the Supabase **Connection Pooler (Supavisor)** on port `5432` (Session mode) or port `6543` (Transaction mode). The pooler supports **IPv4**.
 
 1. Go to your Supabase project dashboard
 2. Navigate to **Settings** > **Database**
-3. Scroll down to **Connection String**
-4. Select **URI** format
-5. Copy the connection string (it looks like):
+3. Scroll down to **Connection Pooling** (or **Connection String** > **Transaction / Session Pooler**)
+4. Select **Session** mode (port 5432) or **Transaction** mode (port 6543)
+5. Select **URI** format
+6. The connection string looks like:
    ```
-   postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+   # Session mode (port 5432) - Recommended for Railway with Prisma:
+   postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
+
+   # Or Transaction mode (port 6543 with pgbouncer):
+   postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
    ```
-6. Replace `[YOUR-PASSWORD]` with your actual database password
+   *Note: Notice the username format is `postgres.[PROJECT-REF]` instead of just `postgres`.*
+7. Replace `[YOUR-PASSWORD]` with your actual database password.
 
 ## Step 3: Update Environment Variables
 
@@ -44,18 +57,24 @@ This guide will help you migrate from SQLite to Supabase (PostgreSQL) for a prod
 Update your `.env` file in the project root:
 
 ```env
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
 ```
 
-### For Production (Render, etc.)
+### For Production (Railway, Render, etc.)
 
-Add the DATABASE_URL as an environment variable in your hosting platform:
+Add `DATABASE_URL` as an environment variable in your Railway project settings:
 
 ```env
-DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
+```
+
+For this specific Supabase project (`vtczrvskyjizdvycawid` in Tokyo / `ap-northeast-1`):
+```env
+DATABASE_URL=postgresql://postgres.vtczrvskyjizdvycawid:[YOUR-PASSWORD]@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres
 ```
 
 **Important**: Never commit your `.env` file or expose your database password!
+
 
 ## Step 4: Install PostgreSQL Dependencies
 

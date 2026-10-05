@@ -26,5 +26,6 @@ RUN mkdir -p uploads
 ENV NODE_ENV=production
 EXPOSE 5000
 
-# Run Prisma generate, migrations and start server at runtime
-CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/server.js"]
+# Run Prisma generate, sync schema and start server at runtime
+CMD ["sh", "-c", "npx prisma generate && npx prisma db push --skip-generate && node dist/server.js"]
+

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, MessageSquare, Tag, Plus, Trash2, Send, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { fileCommentApi, tagApi, favoriteApi } from '../lib/api';
 
@@ -38,7 +38,6 @@ const FileDetails = ({ fileId, fileName, isFavorite, onClose, onUpdate }: FileDe
   const [showTagDialog, setShowTagDialog] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState('#4f46e5');
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchComments();

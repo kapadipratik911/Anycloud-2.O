@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { fileApi } from '../lib/api';
