@@ -234,7 +234,6 @@ export const bulkAddTags = async (req: AuthRequest, res: Response) => {
         try {
           const fileTag = await prisma.fileTag.create({
             data: { fileId, tagId },
-            skipDuplicates: true,
           });
           fileTags.push(fileTag);
         } catch (error) {

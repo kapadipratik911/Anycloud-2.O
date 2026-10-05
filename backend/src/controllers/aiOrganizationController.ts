@@ -543,7 +543,7 @@ export const applySuggestion = async (req: AuthRequest, res: Response) => {
         let parentId: string | null = null;
 
         for (const folderName of folderPath) {
-          let folder = await prisma.folder.findFirst({
+          let folder: any = await prisma.folder.findFirst({
             where: { name: folderName, userId, parentId }
           });
 
