@@ -22,7 +22,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
     // Add storage info for each user
     const fs = require('fs');
     const path = require('path');
-    const usersWithStorage = users.map(user => {
+    const usersWithStorage = users.map((user: any) => {
       const userDir = path.join(process.env.UPLOAD_DIR || './uploads', user.username);
       let storageUsed = 0;
       if (fs.existsSync(userDir)) {

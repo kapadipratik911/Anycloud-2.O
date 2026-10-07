@@ -188,10 +188,10 @@ export const getFiles = async (req: AuthRequest, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    const filesWithMetadata = files.map(file => ({
+    const filesWithMetadata = files.map((file: any) => ({
       ...file,
       isFavorite: file.favorites.length > 0,
-      tags: file.tags.map(ft => ft.tag),
+      tags: file.tags.map((ft: any) => ft.tag),
     }));
 
     res.json({ files: filesWithMetadata });

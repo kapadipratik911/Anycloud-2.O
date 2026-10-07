@@ -76,10 +76,10 @@ export const getUserFavorites = async (req: AuthRequest, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    const filesWithMetadata = favorites.map(fav => ({
+    const filesWithMetadata = favorites.map((fav: any) => ({
       ...fav.file,
       isFavorite: true,
-      tags: fav.file.tags.map(ft => ft.tag),
+      tags: fav.file.tags.map((ft: any) => ft.tag),
     }));
 
     res.json({ files: filesWithMetadata });
@@ -114,11 +114,11 @@ export const getRecentFiles = async (req: AuthRequest, res: Response) => {
     });
 
     const filesWithMetadata = recentFiles
-      .filter(rf => rf.file !== null && !rf.file.isDeleted)
-      .map(rf => ({
+      .filter((rf: any) => rf.file !== null && !rf.file.isDeleted)
+      .map((rf: any) => ({
         ...rf.file,
         isFavorite: rf.file.favorites.length > 0,
-        tags: rf.file.tags.map(ft => ft.tag),
+        tags: rf.file.tags.map((ft: any) => ft.tag),
       }));
 
     res.json({ files: filesWithMetadata });
