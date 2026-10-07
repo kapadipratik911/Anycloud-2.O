@@ -13,10 +13,7 @@ RUN npm ci
 # Copy source code
 COPY backend/ ./
 
-# Generate Prisma client so TypeScript has model types
-RUN npx prisma generate
-
-# Build TypeScript
+# Build TypeScript (skip Prisma generate at build time)
 RUN npm run build
 
 # Create uploads directory
@@ -27,5 +24,7 @@ ENV NODE_ENV=production
 EXPOSE 5000
 
 # Run Prisma generate, sync schema and start server at runtime
+# DATABASE_URL must be set as environment variable in Render
+# Use Supabase connection pooling URL for cloud deployments
 CMD ["sh", "-c", "npx prisma generate && npx prisma db push --skip-generate && node dist/server.js"]
 
